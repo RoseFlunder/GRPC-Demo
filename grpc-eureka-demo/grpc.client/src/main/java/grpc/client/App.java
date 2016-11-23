@@ -22,7 +22,6 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.NameResolver;
 import io.grpc.NameResolver.Factory;
 import io.grpc.ResolvedServerInfo;
-import io.grpc.util.RoundRobinLoadBalancerFactory;
 
 @SpringBootApplication
 @EnableDiscoveryClient
@@ -32,10 +31,11 @@ public class App {
 	}
 
 	public App(final DiscoveryClient client) {
+//		needed for gRPC 1.0.1 to work :S
 		client.getServices();
 
 		Channel channel = ManagedChannelBuilder.forTarget("EchoService")
-				.loadBalancerFactory(RoundRobinLoadBalancerFactory.getInstance()).nameResolverFactory(new Factory() {
+				.nameResolverFactory(new Factory() {
 					@Override
 					public NameResolver newNameResolver(final URI targetUri, Attributes params) {
 						return new NameResolver() {
@@ -49,6 +49,7 @@ public class App {
 
 							@Override
 							public void refresh() {
+//								GRPC 1.0.1
 								List<List<ResolvedServerInfo>> servers = new ArrayList<>();
 								for (ServiceInstance serviceInstance : client.getInstances(targetUri.toString())) {
 									System.out.println("Service Instance: " + serviceInstance.getHost() + ":"
@@ -59,6 +60,18 @@ public class App {
 								}
 
 								this.listener.onUpdate(servers, Attributes.EMPTY);
+								
+//								GRPC 0.14.0
+//								List<ResolvedServerInfo> servers = new ArrayList<>();
+//								for (ServiceInstance serviceInstance : client.getInstances(targetUri.toString())) {
+//									System.out.println("Service Instance: " + serviceInstance.getHost() + ":"
+//											+ serviceInstance.getPort());
+//									servers.add(new ResolvedServerInfo(InetSocketAddress
+//											.createUnresolved(serviceInstance.getHost(), serviceInstance.getPort()),
+//											Attributes.EMPTY));
+//								}
+//
+//								this.listener.onUpdate(servers, Attributes.EMPTY);
 							}
 
 							@Override
@@ -77,7 +90,8 @@ public class App {
 					public String getDefaultScheme() {
 						return "spring";
 					}
-				}).usePlaintext(true).build();
+				}).usePlaintext(true)
+				.build();
 
 		System.out.println(channel);
 

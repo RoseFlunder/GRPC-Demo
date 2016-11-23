@@ -19,6 +19,9 @@ public class GrpcServer {
 	}
 	
 	public GrpcServer() {
+//		GRPC 0.14.0
+//		Server server = ServerBuilder.forPort(9090).addService(EchoServiceGrpc.bindService(new EchoServiceImpl())).build();
+//		GRPC 1.0.1
 		Server server = ServerBuilder.forPort(9090).addService(new EchoServiceImpl()).build();
 		try {
 			server.start();
