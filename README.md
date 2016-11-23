@@ -1,4 +1,6 @@
 # GRPC-Demo
 
-1. Build echo-service project to generate the echo service files via code generation
-2. Build the client
+1. Build grpc-eureka-demo project
+2. Run eureka project
+3. Run server project
+4. Run client project
