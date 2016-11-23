@@ -6,9 +6,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.ServiceInstance;
@@ -28,7 +27,8 @@ import io.grpc.ResolvedServerInfo;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-public class App {
+public class App implements CommandLineRunner {
+	
 	public static void main(String[] args) {
 		SpringApplication.run(App.class, args);
 	}
@@ -36,17 +36,12 @@ public class App {
 	@Autowired
 	private DiscoveryClient client;
 	
-	@PostConstruct
-	public void postConstruct(){
-		new Thread() {
-			@Override
-			public void run() {
-				runGrpcTest();
-			}
-		}.start();
+	@Override
+	public void run(String... args) throws Exception {
+		runGrpcTest();
 	}
 	
-	private void runGrpcTest(){
+	public void runGrpcTest(){
 		Channel channel = ManagedChannelBuilder.forTarget("EchoService")
 				.nameResolverFactory(new Factory() {
 					@Override
